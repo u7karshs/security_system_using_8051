@@ -1,0 +1,38 @@
+#include<reg51.h>
+#define input P1  //Input port (read values of ADC)
+#define output P0 // Output port (connected to LED's)
+void delay(unsigned intmsec );
+void adc();
+sbit wr= P3^5;    // Write pin.
+sbit rd= P3^6;    // Read pin.
+sbit intr= P3^2;  // Interrupt pin.
+void main()
+{input=0xff;       // Declare port 1 as input port.
+output=0x00;      // Declare port 0 as output port.
+
+IT0 = 1;   // Configure interupt 0 for falling edge on /INT0 (P3.2)
+EX0 = 1;   // Enable EX0 Interrupt
+EA = 1;    // Enable Global Interrupt Flag	
+while(1)
+{adc();}
+}
+
+void delay(unsigned int msec )    // Delay function
+{
+int i,j ;
+for(i=0;i<msec;i++)
+for(j=0; j<1275; j++);
+}
+
+void adc() // Reading values from ADC and display on the LED's
+{
+rd=1;     
+wr=0;    
+delay(10);
+wr=1;
+while(intr==1);
+rd=0;
+output=input;
+delay(10);
+intr=1;
+}
